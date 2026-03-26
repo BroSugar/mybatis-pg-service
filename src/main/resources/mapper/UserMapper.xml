@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.swu.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="cn.swu.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="email" property="email"/>
+        <result column="age" property="age"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="content" property="content"
+                javaType="com.fasterxml.jackson.databind.JsonNode"
+                jdbcType="OTHER"
+                typeHandler="cn.swu.typehandler.JsonNodeTypeHandler"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, email, age, create_time, update_time, content
+    </sql>
+
+    <insert id="insert" parameterType="cn.swu.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, email, age, create_time, update_time, content)
+        VALUES (#{username}, #{email}, #{age}, #{createTime}, #{updateTime}, #{content,javaType=com.fasterxml.jackson.databind.JsonNode,jdbcType=OTHER,typeHandler=com.example.typehandler.JsonNodeTypeHandler})
+    </insert>
+
+    <update id="update" parameterType="cn.swu.entity.User">
+        UPDATE users
+        SET username = #{username},
+        email = #{email},
+        age = #{age},
+        update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        WHERE username LIKE CONCAT('%', #{username}, '%')
+    </select>
+
+    <select id="selectByAgeRange" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        WHERE age BETWEEN #{minAge} AND #{maxAge}
+        ORDER BY age ASC
+    </select>
+
+    <select id="selectByEmailDomain" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        WHERE email LIKE CONCAT('%@', #{domain})
+        ORDER BY id DESC
+    </select>
+
+    <select id="countTotalUsers" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM users
+    </select>
+
+    <select id="groupByAge" resultType="java.util.Map">
+        SELECT age, COUNT(*) as count
+        FROM users
+        GROUP BY age
+        ORDER BY age ASC
+    </select>
+
+    <select id="selectWithPagination" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="selectOrderByAgeAsc" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        ORDER BY age ASC, id DESC
+    </select>
+
+    <select id="selectOrderByAgeDesc" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        ORDER BY age DESC, id DESC
+    </select>
+
+    <select id="selectByCreateTimeRange" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM users
+        WHERE create_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY create_time DESC
+    </select>
+</mapper>
+
